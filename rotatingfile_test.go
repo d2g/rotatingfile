@@ -2,6 +2,7 @@ package rotatingfile_test
 
 import (
 	"crypto/rand"
+	"fmt"
 	"os"
 	"testing"
 
@@ -116,4 +117,39 @@ func TestRemovingAtMaxRotation(test *testing.T) {
 		}
 	}
 
+}
+
+func ExampleFile() {
+	file, err := os.Create(os.TempDir() + "/file.tmp")
+	if err != nil {
+		fmt.Printf("Error Creating Temp File %s\n", err.Error())
+		return
+	}
+
+	rotatingfile := rotatingfile.File{
+		File:           file,
+		MaxFileSize:    10485760,
+		MaxBackupIndex: 10,
+	}
+
+	_, err = rotatingfile.Write([]byte("Example Write..."))
+	if err != nil {
+		fmt.Printf("Error Writing Data %s\n", err.Error())
+		return
+	}
+
+	err = rotatingfile.Close()
+	if err != nil {
+		fmt.Printf("Error Closing File %s\n", err.Error())
+		return
+	}
+
+	// Tidy Up.
+	err = os.Remove(rotatingfile.Name())
+	if err != nil {
+		fmt.Printf("Error Removing original File %s\n", err.Error())
+		return
+	}
+
+	// Output:
 }
